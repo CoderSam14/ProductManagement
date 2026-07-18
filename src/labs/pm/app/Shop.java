@@ -50,8 +50,8 @@ public class Shop {
                     .collect (Collectors.joining("\n")));
             Product product=pm.reviewProduct(productId,Rating.FOUR_STAR,"Yet another review");
             log.append((product!=null)
-                    ? "\nProduct "+productId+" reviewed\n"
-                    : "\nProduct "+productId+" not reviewed\n");
+                    ? "\nProduct "+productId+" was reviewed\n"
+                    : "\nProduct "+productId+" was not reviewed\n");
             return log.toString();
         };
         List<Callable<String>> clients= Stream.generate(()->client).limit(5).collect(Collectors.toList());
@@ -64,7 +64,7 @@ public class Shop {
                     System.out.println(result.get());
                 } catch (InterruptedException | ExecutionException e) {
                     Logger.getLogger(Shop.class.getName())
-                            .log(Level.SEVERE,"Failed to retreive client list",e);
+                            .log(Level.SEVERE,"Failed to retrieve client list",e);
                 }
             });
         }catch (InterruptedException e){
