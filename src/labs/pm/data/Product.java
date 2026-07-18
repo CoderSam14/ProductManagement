@@ -20,7 +20,10 @@
 
 package labs.pm.data;
 
+<<<<<<< HEAD
 import java.io.Serializable;
+=======
+>>>>>>> c64f141c9d860cf60f417c45d8a8163595588a35
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -29,7 +32,11 @@ import java.util.Objects;
 
 import static labs.pm.data.Rating.*;
 
+<<<<<<< HEAD
 public sealed abstract class Product implements Rateable<Product> , Serializable permits Food,Drink {
+=======
+public sealed abstract class Product implements Rateable<Product> permits Food,Drink {
+>>>>>>> c64f141c9d860cf60f417c45d8a8163595588a35
     private final int id;
     private final String name;
     private final BigDecimal price;

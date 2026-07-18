@@ -7,6 +7,7 @@
 
 package labs.pm.data;
 
+<<<<<<< HEAD
 import java.io.*;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
@@ -30,6 +31,15 @@ import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+=======
+import java.math.BigDecimal;
+import java.text.MessageFormat;
+import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.*;
+>>>>>>> c64f141c9d860cf60f417c45d8a8163595588a35
 
 import static java.text.MessageFormat.format;
 
@@ -39,6 +49,7 @@ import static java.text.MessageFormat.format;
  **/
 public class ProductManager {
     private Map<Product, List<Review>> products=new HashMap<>();
+<<<<<<< HEAD
 
     private final ReentrantReadWriteLock lock=new ReentrantReadWriteLock();
     private final Lock writeLock= lock.writeLock();
@@ -46,12 +57,16 @@ public class ProductManager {
 
     private Review[] reviews=new Review[5];
 
+=======
+    private Review[] reviews=new Review[5];
+>>>>>>> c64f141c9d860cf60f417c45d8a8163595588a35
     private static Map<String, ResourceFormatter> formatters =
             Map.of("en-GB", new ResourceFormatter(Locale.UK),
                     "en-US", new ResourceFormatter(Locale.US),
                     "ru-RU", new ResourceFormatter(new Locale("ru", "RU")),
                     "fr-FR", new ResourceFormatter(Locale.FRANCE),
                     "zh-CN", new ResourceFormatter(Locale.CHINA));
+<<<<<<< HEAD
 
     //private ResourceFormatter formatter;
     private final ResourceBundle config=ResourceBundle.getBundle("labs.pm.data.config");
@@ -79,6 +94,18 @@ public class ProductManager {
 //
 //    }
 
+=======
+    private ResourceFormatter formatter;
+
+    private ProductManager(String languageTag){
+        changeLocale(languageTag);
+    }
+
+    public ProductManager(Locale locale){
+        this(locale.toLanguageTag());
+    }
+
+>>>>>>> c64f141c9d860cf60f417c45d8a8163595588a35
     private static class ResourceFormatter{
         private Locale locale;
         private ResourceBundle resources;
@@ -117,14 +144,20 @@ public class ProductManager {
         }
     }
 
+<<<<<<< HEAD
     public ResourceFormatter changeLocale(String LanguageTag){
         return formatters.getOrDefault(LanguageTag,formatters.get("en-GB"));
+=======
+    public void changeLocale(String LanguageTag){
+        this.formatter=formatters.getOrDefault(LanguageTag,formatters.get("en-GB"));
+>>>>>>> c64f141c9d860cf60f417c45d8a8163595588a35
 
     }
 
     public static Set<String> getSupportedLocales(){
         return formatters.keySet();
     }
+<<<<<<< HEAD
     //FOOD
     public Product createProduct(int id, String name, BigDecimal price, Rating rating, LocalDate bestBefore){
         Product product=null;
@@ -151,10 +184,23 @@ public class ProductManager {
         }finally {
             writeLock.unlock();
         }
+=======
+
+    public Product createProduct(int id, String name, BigDecimal price, Rating rating, LocalDate bestBefore){
+        Product product=new Food(id,name,price,rating,bestBefore);
+        products.putIfAbsent(product,new ArrayList<>());
+        return product;
+    }
+
+    public Product createProduct(int id, String name, BigDecimal price, Rating rating){
+        Product product=new Drink(id,name,price,rating);
+        products.putIfAbsent(product,new ArrayList<>());//Avoid .put it may override existing product with empty review list!
+>>>>>>> c64f141c9d860cf60f417c45d8a8163595588a35
         return product;
     }
 
 
+<<<<<<< HEAD
     public Product findProduct(int id) throws ProductManagerException{
 //       Product result=null;
 //       LOOP1:
@@ -189,11 +235,31 @@ public class ProductManager {
 
     //NOT USED FOR NOW
     private Product reviewProduct(Product product,Rating rating,String comments){
+=======
+    public Product findProduct(int id){
+       Product result=null;
+       LOOP1:
+       for(Product product:products.keySet()){
+           if(product.getId()==id){
+               result=product;
+               break LOOP1;
+           }
+       }
+       return result;
+    }
+
+    public Product reviewProduct(int id,Rating rating,String comments){
+        return reviewProduct(findProduct(id),rating,comments);
+    }
+
+    public Product reviewProduct(Product product,Rating rating,String comments){
+>>>>>>> c64f141c9d860cf60f417c45d8a8163595588a35
         List<Review> reviews=products.get(product);
         products.remove(product,reviews);
         //WHY ? because apply rating returns new object!
         reviews.add(new Review(rating,comments));
 
+<<<<<<< HEAD
 //        int sum=0;
 //
 //        for(Review review:reviews){
@@ -202,10 +268,20 @@ public class ProductManager {
 //
 //        product=product.applyRating(Rateable.convert(Math.round((float)sum/reviews.size())));
         product=product.applyRating(Rateable.convert((int)Math.round(reviews.stream().mapToInt(r->r.rating().ordinal()).average().orElse(0))));
+=======
+        int sum=0;
+
+        for(Review review:reviews){
+            sum+=review.rating().ordinal();
+        }
+
+        product=product.applyRating(Rateable.convert(Math.round((float)sum/reviews.size())));
+>>>>>>> c64f141c9d860cf60f417c45d8a8163595588a35
         this.products.put(product,reviews);
         return product;
     }
 
+<<<<<<< HEAD
     public void printProductReport(int id,String languageTag,String Client){
         try {
             readLock.lock();
@@ -372,4 +448,70 @@ public class ProductManager {
             readLock.unlock();
         }
     }
+=======
+    public void printProductReport(int id){
+        printProductReport(findProduct(id));
+    }
+
+    public void printProductReport(Product product){
+        List<Review> reviews=products.get(product);
+        Collections.sort(reviews);
+        StringBuilder txt=new StringBuilder();
+        txt.append(formatter.formatProduct(product));
+        txt.append('\n');
+        if(reviews.isEmpty()){
+            txt.append(formatter.getText("no.reviews"));
+        }
+        for(Review review:reviews){
+            txt.append(formatter.formatReview(review));
+            txt.append('\n');
+        }
+        System.out.println(txt);
+    }
+
+    public void printProducts(Comparator<Product> sorter){
+        List<Product> productList=new ArrayList<>(products.keySet());
+        productList.sort(sorter);
+        StringBuilder txt=new StringBuilder();
+        for(Product product:productList){
+            txt.append(formatter.formatProduct(product));
+            txt.append('\n');
+        }
+        System.out.println(txt);
+    }
+
+    public List<Product> getAllProducts() {
+        return new ArrayList<>(products.keySet());
+    }
+
+    public List<Review> getProductReviews(int id) {
+        Product product = findProduct(id);
+        if (product == null) {
+            return new ArrayList<>();
+        }
+        return new ArrayList<>(products.get(product));
+    }
+
+    public String getProductReport(int id) {
+        Product product = findProduct(id);
+        if (product == null) {
+            return null;
+        }
+        
+        List<Review> reviews = products.get(product);
+        Collections.sort(reviews);
+        StringBuilder txt = new StringBuilder();
+        txt.append(formatter.formatProduct(product));
+        txt.append('\n');
+        if (reviews.isEmpty()) {
+            txt.append(formatter.getText("no.reviews"));
+        }
+        for (Review review : reviews) {
+            txt.append(formatter.formatReview(review));
+            txt.append('\n');
+        }
+        return txt.toString();
+    }
+
+>>>>>>> c64f141c9d860cf60f417c45d8a8163595588a35
 }

@@ -7,12 +7,19 @@
 
 package labs.pm.data;
 
+<<<<<<< HEAD
 import java.io.Serializable;
 
 /**
  * @author acer
  **/
 public record Review(Rating rating,String comment) implements  Comparable<Review>, Serializable {
+=======
+/**
+ * @author acer
+ **/
+public record Review(Rating rating,String comment) implements  Comparable<Review> {
+>>>>>>> c64f141c9d860cf60f417c45d8a8163595588a35
 
 
     @Override
